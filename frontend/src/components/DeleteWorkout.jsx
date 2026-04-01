@@ -1,3 +1,5 @@
+import { deleteWorkoutById } from '../utils/api.js';
+
 function DeleteWorkout({ workoutId, workoutTitle, refreshWorkouts }) {
   
   const handleDelete = async () => {
@@ -7,17 +9,13 @@ function DeleteWorkout({ workoutId, workoutTitle, refreshWorkouts }) {
     }
 
     try {
-      const response = await fetch(`http://localhost:4000/api/workouts/${workoutId}`, {
-        method: 'DELETE'
-      });
-
-      const data = await response.json();
+      const response = await deleteWorkoutById(workoutId);
 
       if (response.ok) {
-        console.log('Workout verwijderd!', data);
-        refreshWorkouts(); // Refresh de lijst
+        console.log('Workout verwijderd!', response.data);
+        refreshWorkouts();
       } else {
-        console.error('Error:', data.error);
+        console.error('Error:', response.data?.error);
       }
     } catch (error) {
       console.error('Fetch error:', error);

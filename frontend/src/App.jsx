@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react';
-import DeleteWorkout from './components/DeleteWorkout.jsx';
-import UpdateWorkout from './components/UpdateWorkout.jsx';
 import WorkoutForm from './components/WorkoutForm.jsx';
-import WorkoutItem from './components/WorkoutItem.jsx';
 import WorkoutList from './components/WorkoutList.jsx';
+import { getWorkouts } from './utils/api.js';
 
 function App() {
   const [workouts, setWorkouts] = useState([]);
+  const [error, setError] = useState('');
 
   const refreshWorkouts = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/workouts');
-      const data = await response.json();
-      setWorkouts(data);
+      const response = await getWorkouts();
+
+      if (!response.ok) {
+        throw new Error(response.data?.error || 'Workouts ophalen mislukt');
+      }
+
+      setWorkouts(Array.isArray(response.data) ? response.data : []);
+      setError('');
     } catch (error) {
       console.error('Error:', error);
+      setError(error.message || 'De backend is niet bereikbaar');
     }
   };
 
@@ -25,6 +30,7 @@ function App() {
   return (
     <div className="App">
       <h1>Workouts</h1>
+      {error && <p>{error}</p>}
       <WorkoutForm refreshWorkouts={refreshWorkouts} />
       <WorkoutList workouts={workouts} refreshWorkouts={refreshWorkouts} />
     </div>
