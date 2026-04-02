@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { createWorkout } from '../utils/api.js';
 
-function WorkoutForm({ refreshWorkouts }) {
+function WorkoutForm() {
   const [title, setTitle] = useState('');
   const [reps, setReps] = useState('');
   const [load, setLoad] = useState('');
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,24 +14,24 @@ function WorkoutForm({ refreshWorkouts }) {
       load: Number(load) 
     };
 
-    try {
-      const response = await createWorkout(workout);
+    const response = await fetch('http://localhost:4000/api/workouts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(workout)
+    });
 
-      if (response.ok) {
-        console.log('Workout aangemaakt!', response.data);
-        setTitle('');
-        setReps('');
-        setLoad('');
-        setError('');
-        refreshWorkouts();
-      } else {
-        const message = response.data?.error || 'Workout toevoegen mislukt';
-        console.error('Error:', message);
-        setError(message);
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      setError('De backend is niet bereikbaar');
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log('Workout aangemaakt!', data);
+      // Reset form
+      setTitle('');
+      setReps('');
+      setLoad('');
+    } else {
+      console.error('Error:', data.error);
     }
   };
 
@@ -58,7 +56,6 @@ function WorkoutForm({ refreshWorkouts }) {
         onChange={(e) => setLoad(e.target.value)}
       />
       <button type="submit">Toevoegen</button>
-      {error && <p>{error}</p>}
     </form>
   );
 }

@@ -1,6 +1,4 @@
-import { deleteWorkoutById } from '../utils/api.js';
-
-function DeleteWorkout({ workoutId, workoutTitle, refreshWorkouts }) {
+function DeleteWorkout({ workoutId, workoutTitle }) {
   
   const handleDelete = async () => {
     // Bevestiging vragen
@@ -9,13 +7,17 @@ function DeleteWorkout({ workoutId, workoutTitle, refreshWorkouts }) {
     }
 
     try {
-      const response = await deleteWorkoutById(workoutId);
+      const response = await fetch(`http://localhost:4000/api/workouts/${workoutId}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
 
       if (response.ok) {
-        console.log('Workout verwijderd!', response.data);
-        refreshWorkouts();
+        console.log('Workout verwijderd!', data);
+        // Verwijder uit UI of refresh lijst
       } else {
-        console.error('Error:', response.data?.error);
+        console.error('Error:', data.error);
       }
     } catch (error) {
       console.error('Fetch error:', error);

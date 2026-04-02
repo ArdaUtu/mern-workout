@@ -1,38 +1,46 @@
 import { useEffect, useState } from 'react';
-import WorkoutForm from './components/WorkoutForm.jsx';
-import WorkoutList from './components/WorkoutList.jsx';
-import { getWorkouts } from './utils/api.js';
 
 function App() {
   const [workouts, setWorkouts] = useState([]);
-  const [error, setError] = useState('');
 
-  const refreshWorkouts = async () => {
+  const fetchWorkouts = async () => {
+      const token = localStorage.getItem('token');
+
+    if (!token) {
+        console.log('Niet ingelogd');
+        return;
+    }
     try {
-      const response = await getWorkouts();
-
-      if (!response.ok) {
-        throw new Error(response.data?.error || 'Workouts ophalen mislukt');
-      }
-
-      setWorkouts(Array.isArray(response.data) ? response.data : []);
-      setError('');
+     const response = await fetch('http://localhost:4000/api/workouts', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+      const data = await response.json();
+      setWorkouts(data);
     } catch (error) {
       console.error('Error:', error);
-      setError(error.message || 'De backend is niet bereikbaar');
     }
   };
 
   useEffect(() => {
-    refreshWorkouts();
+    fetchWorkouts();
   }, []);
 
   return (
     <div className="App">
       <h1>Workouts</h1>
-      {error && <p>{error}</p>}
-      <WorkoutForm refreshWorkouts={refreshWorkouts} />
-      <WorkoutList workouts={workouts} refreshWorkouts={refreshWorkouts} />
+      {workouts.length === 0 ? (
+        <p>Geen workouts gevonden</p>
+      ) : (
+        workouts.map(workout => (
+          <div key={workout._id}>
+            <h3>{workout.title}</h3>
+            <p>Reps: {workout.reps}</p>
+            <p>Load: {workout.load} kg</p>
+          </div>
+        ))
+      )}
     </div>
   );
 }

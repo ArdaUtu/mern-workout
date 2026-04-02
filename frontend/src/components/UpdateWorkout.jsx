@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { updateWorkoutById } from '../utils/api.js';
 
-function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad, refreshWorkouts }) {
+function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad }) {
   const [title, setTitle] = useState(currentTitle);
   const [reps, setReps] = useState(currentReps);
   const [load, setLoad] = useState(currentLoad);
@@ -16,13 +15,20 @@ function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad, refr
     };
 
     try {
-      const response = await updateWorkoutById(workoutId, updatedWorkout);
+      const response = await fetch(`http://localhost:4000/api/workouts/${workoutId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedWorkout)
+      });
+
+      const data = await response.json();
 
       if (response.ok) {
-        console.log('Workout aangepast!', response.data);
-        refreshWorkouts();
+        console.log('Workout aangepast!', data);
       } else {
-        console.error('Error:', response.data?.error);
+        console.error('Error:', data.error);
       }
     } catch (error) {
       console.error('Fetch error:', error);
@@ -53,5 +59,3 @@ function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad, refr
     </form>
   );
 }
-
-export default UpdateWorkout;
