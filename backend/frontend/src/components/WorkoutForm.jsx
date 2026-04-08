@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function WorkoutForm() {
+function WorkoutForm({ token, onWorkoutAdded }) {
   const [title, setTitle] = useState('');
   const [reps, setReps] = useState('');
   const [load, setLoad] = useState('');
@@ -17,7 +17,8 @@ function WorkoutForm() {
     const response = await fetch('http://localhost:4000/api/workouts', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(workout)
     });
@@ -26,14 +27,15 @@ function WorkoutForm() {
 
     if (response.ok) {
       console.log('Workout aangemaakt!', data);
-      // Reset form
       setTitle('');
       setReps('');
       setLoad('');
+      onWorkoutAdded();
     } else {
       console.error('Error:', data.error);
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -42,20 +44,24 @@ function WorkoutForm() {
         placeholder="Titel"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        required
       />
       <input
         type="number"
         placeholder="Reps"
         value={reps}
         onChange={(e) => setReps(e.target.value)}
+        required
       />
       <input
         type="number"
         placeholder="Load (kg)"
         value={load}
         onChange={(e) => setLoad(e.target.value)}
+        required
       />
       <button type="submit">Toevoegen</button>
+      
     </form>
   );
 }

@@ -1,6 +1,13 @@
 import { useState } from 'react';
 
-function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad }) {
+function UpdateWorkout({
+  workoutId,
+  currentTitle,
+  currentReps,
+  currentLoad,
+  token,
+  onWorkoutUpdated
+}) {
   const [title, setTitle] = useState(currentTitle);
   const [reps, setReps] = useState(currentReps);
   const [load, setLoad] = useState(currentLoad);
@@ -18,7 +25,8 @@ function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad }) {
       const response = await fetch(`http://localhost:4000/api/workouts/${workoutId}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(updatedWorkout)
       });
@@ -27,6 +35,7 @@ function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad }) {
 
       if (response.ok) {
         console.log('Workout aangepast!', data);
+        onWorkoutUpdated();
       } else {
         console.error('Error:', data.error);
       }
@@ -42,20 +51,25 @@ function UpdateWorkout({ workoutId, currentTitle, currentReps, currentLoad }) {
         placeholder="Titel"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        required
       />
       <input
         type="number"
         placeholder="Reps"
         value={reps}
         onChange={(e) => setReps(e.target.value)}
+        required
       />
       <input
         type="number"
         placeholder="Load (kg)"
         value={load}
         onChange={(e) => setLoad(e.target.value)}
+        required
       />
       <button type="submit">Aanpassen</button>
     </form>
   );
 }
+
+export default UpdateWorkout;
